@@ -121,7 +121,7 @@
             <div class="score" id="player2Score">0</div>
         </div>
         <canvas id="pongCanvas" width="800" height="600"></canvas>
-        <div id="controls">Use W/S for Left Paddle, Up/Down Arrows for Right Paddle</div>
+        <div id="controls">Use Up/Down Arrows for Right Paddle</div>
         <div id="startScreen">
             <h1 style="font-size: 48px; color: #ff00ff; margin-bottom: 20px; text-shadow: 0 0 20px #ff00ff;">NEON PONG 2077</h1>
             <button id="startButton" style="background: transparent; border: 2px solid #00ffff; color: #00ffff; font-size: 24px; padding: 10px 20px; cursor: pointer; text-shadow: 0 0 10px #00ffff; transition: all 0.3s ease;">START GAME</button>
@@ -135,6 +135,12 @@
         const startButton = document.getElementById('startButton');
         const player1ScoreEl = document.getElementById('player1Score');
         const player2ScoreEl = document.getElementById('player2Score');
+
+        // Audio elements
+        const bgMusic = new Audio('https://www.chosic.com/wp-content/uploads/2021/07/The-Last-Encounter.mp3');
+        const hitSound = new Audio('https://freesound.org/data/previews/270/270338_5121236-lq.mp3');
+        const scoreSound = new Audio('https://freesound.org/data/previews/391/391658_4284968-lq.mp3');
+        bgMusic.loop = true;
 
         let player1Score = 0;
         let player2Score = 0;
@@ -162,8 +168,10 @@
         }
 
         function update() {
-            // Move paddles
-            player1.y += player1.dy;
+            // AI for player 1 (left paddle)
+            player1.y = ball.y - paddleHeight / 2;
+
+            // Move player 2 paddle
             player2.y += player2.dy;
 
             // Paddle collision with walls
@@ -185,21 +193,25 @@
             if (ball.x - ball.radius < player1.x + player1.width &&
                 ball.y > player1.y && ball.y < player1.y + player1.height) {
                 ball.dx *= -1;
+                hitSound.play();
             }
             if (ball.x + ball.radius > player2.x &&
                 ball.y > player2.y && ball.y < player2.y + player2.height) {
                 ball.dx *= -1;
+                hitSound.play();
             }
 
             // Score points
             if (ball.x + ball.radius > canvas.width) {
                 player1Score++;
                 player1ScoreEl.textContent = player1Score;
+                scoreSound.play();
                 resetBall();
             }
             if (ball.x - ball.radius < 0) {
                 player2Score++;
                 player2ScoreEl.textContent = player2Score;
+                scoreSound.play();
                 resetBall();
             }
 
@@ -224,8 +236,6 @@
 
         document.addEventListener('keydown', (e) => {
             switch (e.key) {
-                case 'w': player1.dy = -8; break;
-                case 's': player1.dy = 8; break;
                 case 'ArrowUp': player2.dy = -8; break;
                 case 'ArrowDown': player2.dy = 8; break;
             }
@@ -233,10 +243,6 @@
 
         document.addEventListener('keyup', (e) => {
             switch (e.key) {
-                case 'w':
-                case 's':
-                    player1.dy = 0;
-                    break;
                 case 'ArrowUp':
                 case 'ArrowDown':
                     player2.dy = 0;
@@ -246,6 +252,7 @@
 
         startButton.addEventListener('click', () => {
             startScreen.style.display = 'none';
+            bgMusic.play();
             update();
         });
 
