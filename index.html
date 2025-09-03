@@ -169,7 +169,13 @@
 
         function update() {
             // AI for player 1 (left paddle)
-            player1.y = ball.y - paddleHeight / 2;
+            const targetY = ball.y - paddleHeight / 2;
+            const speed = 10;
+            if (player1.y < targetY) {
+                player1.y += Math.min(speed, targetY - player1.y);
+            } else if (player1.y > targetY) {
+                player1.y -= Math.min(speed, player1.y - targetY);
+            }
 
             // Move player 2 paddle
             player2.y += player2.dy;
@@ -252,7 +258,16 @@
 
         startButton.addEventListener('click', () => {
             startScreen.style.display = 'none';
-            bgMusic.play();
+
+            const playPromise = bgMusic.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {})
+                .catch(error => {
+                    console.error(error);
+                });
+            }
+
             update();
         });
 
